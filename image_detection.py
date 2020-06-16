@@ -42,7 +42,7 @@ def YOLO():
 
     global metaMain, netMain, altNames
     configPath = "Configuration/yolov4_obj.cfg"
-    weightPath = "Weights/yolov3_custom_final.weights"
+    weightPath = "Weights/yolov4_obj_final.weights"
     metaPath = "Configuration/detector.data"
     if not os.path.exists(configPath):
         raise ValueError("Invalid config path `" +
@@ -82,7 +82,7 @@ def YOLO():
     #cap = cv2.VideoCapture(0)
     imagepath = argv[1]
     if os.path.exists(imagepath):
-        name = imagepath.split()[-1]
+        name = imagepath.split('/')[-1].split('.')[0]
         frame_read = cv2.imread(imagepath)
     else:
         print("Incorrect path to image")
@@ -108,7 +108,7 @@ def YOLO():
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     print("FPS : ", end='')
     print(1.0 / (time.time() - prev_time))
-    cv2.imwrite("detections/" + name + "_output.jpg", image)
+    cv2.imwrite(name + "_output.jpg", image)
 
 
 if __name__ == "__main__":

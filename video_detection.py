@@ -33,7 +33,7 @@ def cvDrawBoxes(detections, img):
         #     str(round(detection[1] * 100, 2)) + "]", (pt1[0], pt1[1] - 5),
         #     cv2.FONT_HERSHEY_SIMPLEX, 0.5, [0, 255, 0], 2)
         cv2.putText(img, detection[0].decode(), (pt1[0], pt1[1] - 5),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, [0, 255, 0], 2)
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, [0, 255, 0], 1)
     return img
 
 
@@ -46,7 +46,7 @@ def YOLO():
 
     global metaMain, netMain, altNames
     configPath = "Configuration/yolov4_obj.cfg"
-    weightPath = "Weights/yolov3_custom_final.weights"
+    weightPath = "Weights/yolov4_obj_final.weights"
     metaPath = "Configuration/detector.data"
     if not os.path.exists(configPath):
         raise ValueError("Invalid config path `" +
@@ -94,7 +94,7 @@ def YOLO():
     cap.set(3, 1280)
     cap.set(4, 720)
     out = cv2.VideoWriter(
-        "output.avi", cv2.VideoWriter_fourcc(*"MJPG"), 10.0,
+        name + "_output.avi", cv2.VideoWriter_fourcc(*"MJPG"), 10.0,
         (darknet.network_width(netMain), darknet.network_height(netMain)))
     print("Starting the YOLO loop...")
 
