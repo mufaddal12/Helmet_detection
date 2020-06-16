@@ -1,0 +1,4 @@
+classes = 1
+train = /mydrive/Helmet_detection/Configuration/train.txt
+names = /content/Helmet_detection/Configuration/object.names
+backup = /mydrive/Helmet_detection/Backup/
