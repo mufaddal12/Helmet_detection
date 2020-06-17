@@ -22,7 +22,7 @@ def convertBack(x, y, w, h, inputshape, imgshape):
     xmax = int(round(x + (w / 2)))
     ymin = int(round(y - (h / 2)))
     ymax = int(round(y + (h / 2)))
-    print(xmin, ymin, xmax, ymax)
+    # print(xmin, ymin, xmax, ymax)
     return xmin, ymin, xmax, ymax
 
 
@@ -38,13 +38,13 @@ def cvDrawBoxes(detections, img, inputshape):
                                              float(h), inputshape, img.shape)
         pt1 = (xmin, ymin)
         pt2 = (xmax, ymax)
-        cv2.rectangle(img, pt1, pt2, (0, 255, 0), 1)
+        cv2.rectangle(img, pt1, pt2, (0, 255, 0), 2)
         # cv2.putText(
         #     img, detection[0].decode() + " [" +
         #     str(round(detection[1] * 100, 2)) + "]", (pt1[0], pt1[1] - 5),
         #     cv2.FONT_HERSHEY_SIMPLEX, 0.5, [0, 255, 0], 2)
         cv2.putText(img, detection[0].decode(), (pt1[0], pt1[1] - 5),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, [0, 255, 0], 1)
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, [0, 255, 0], 2)
     return img
 
 
@@ -106,16 +106,17 @@ def YOLO():
     print(fps)
     cap.set(3, 1280)
     cap.set(4, 720)
-    out = cv2.VideoWriter(
-        name + "_output.avi", cv2.VideoWriter_fourcc(*"MJPG"), fps,
-        (darknet.network_width(netMain), darknet.network_height(netMain)))
+    ret, frame_read = cap.read()
+    out = cv2.VideoWriter(name + "_output.avi",
+                          cv2.VideoWriter_fourcc(*"MJPG"), fps,
+                          (frame_read.shape[1], frame_read.shape[0]))
     print("Starting the YOLO loop...")
 
     inputshape = (darknet.network_width(netMain),
                   darknet.network_height(netMain))
     # Create an image we reuse for each detect
     darknet_image = darknet.make_image(inputshape[0], inputshape[1], 3)
-    ret, frame_read = cap.read()
+
     start = time.time()
     cnt = 1
     while ret:
@@ -136,14 +137,15 @@ def YOLO():
                                               thresh=0.25)
             image = cvDrawBoxes(detections, frame_rgb, inputshape)
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            out.write(image)
             print(1 / (time.time() - prev_time))
+            out.write(image)
+
         ret, frame_read = cap.read()
         # cv2.imshow('Demo', image)     #uncomment if running on local machine
         # cv2.waitKey(3)    #uncomment if running on local machine
     print()
     print("Average FPS : ", end='')
-    print(print(cnt * 1.0 / (time.time() - start)))
+    print(cnt * 1.0 / (time.time() - start))
     cap.release()
     out.release()
 
