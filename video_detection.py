@@ -102,10 +102,12 @@ def YOLO():
         print("Incorrect path to video")
         return
     cap = cv2.VideoCapture(videopath)
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    print(fps)
     cap.set(3, 1280)
     cap.set(4, 720)
     out = cv2.VideoWriter(
-        name + "_output.avi", cv2.VideoWriter_fourcc(*"MJPG"), 10.0,
+        name + "_output.avi", cv2.VideoWriter_fourcc(*"MJPG"), fps,
         (darknet.network_width(netMain), darknet.network_height(netMain)))
     print("Starting the YOLO loop...")
 
