@@ -9,22 +9,33 @@ from darknet import darknet
 from sys import argv
 
 
-def convertBack(x, y, w, h):
+def convertBack(x, y, w, h, inputshape, imgshape):
+    inx, iny = inputshape
+    imgy, imgx, _ = imgshape
+
+    x = (float(x / float(inx)) * imgx)
+    w = (float(w / float(inx)) * imgx)
+    y = (float(y / float(iny)) * imgy)
+    h = (float(h / float(iny)) * imgy)
+
     xmin = int(round(x - (w / 2)))
     xmax = int(round(x + (w / 2)))
     ymin = int(round(y - (h / 2)))
     ymax = int(round(y + (h / 2)))
+    print(xmin, ymin, xmax, ymax)
     return xmin, ymin, xmax, ymax
 
 
-def cvDrawBoxes(detections, img):
+def cvDrawBoxes(detections, img, inputshape):
+
     for detection in detections:
         x, y, w, h = detection[2][0],\
             detection[2][1],\
             detection[2][2],\
             detection[2][3]
+
         xmin, ymin, xmax, ymax = convertBack(float(x), float(y), float(w),
-                                             float(h))
+                                             float(h), inputshape, img.shape)
         pt1 = (xmin, ymin)
         pt2 = (xmax, ymax)
         cv2.rectangle(img, pt1, pt2, (0, 255, 0), 1)
@@ -98,9 +109,10 @@ def YOLO():
         (darknet.network_width(netMain), darknet.network_height(netMain)))
     print("Starting the YOLO loop...")
 
+    inputshape = (darknet.network_width(netMain),
+                  darknet.network_height(netMain))
     # Create an image we reuse for each detect
-    darknet_image = darknet.make_image(darknet.network_width(netMain),
-                                       darknet.network_height(netMain), 3)
+    darknet_image = darknet.make_image(inputshape[0], inputshape[1], 3)
     ret, frame_read = cap.read()
     start = time.time()
     cnt = 1
@@ -110,8 +122,7 @@ def YOLO():
         if ret:
             frame_rgb = cv2.cvtColor(frame_read, cv2.COLOR_BGR2RGB)
             frame_resized = cv2.resize(frame_rgb,
-                                       (darknet.network_width(netMain),
-                                        darknet.network_height(netMain)),
+                                       inputshape,
                                        interpolation=cv2.INTER_LINEAR)
 
             darknet.copy_image_from_bytes(darknet_image,
@@ -121,7 +132,7 @@ def YOLO():
                                               metaMain,
                                               darknet_image,
                                               thresh=0.25)
-            image = cvDrawBoxes(detections, frame_resized)
+            image = cvDrawBoxes(detections, frame_rgb, inputshape)
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             out.write(image)
             print(1 / (time.time() - prev_time))
